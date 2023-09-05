@@ -1,0 +1,79 @@
+# Install Packages
+sudo apt-get update
+sudo apt-get install g++
+sudo apt install cufflinks
+sudo apt-get install make
+(make release)
+sudo apt install python3-docopt
+sudo apt install python3-lz4
+sudo apt install python3-numpy
+sudo apt-get install samtool
+sudo apt-get install biobambam2
+
+# Create a Folder
+cd /home/wanessa
+mkdir cellranger
+cd cellranger
+
+# Download CellRanger
+wget -O cellranger-version.tar.gz "link"
+
+# Open file
+ls -1
+## cellranger-7.1.0.tar.gz
+tar -zxvf cellranger-7.1.0.tar.gz
+
+ls -1
+## cellranger-7.1.0
+cellranger-7.1.0.tar.gz
+
+cd cellranger-7.1.0
+Pwd
+## /home/wanessa/apps/cellranger-7.1.0
+
+Criando um path para cellranger
+export PATH=/home/wanessa/cellranger/cellranger-6.1.2:$PATH
+
+which cellranger
+(/home/wanessa/apps/cellranger-7.1.0/cellranger)
+
+Cellranger ou /home/wanessa/cellranger/cellranger-6.1.2/cellranger
+
+
+Configurando Cell Ranger
+cellranger sitecheck >  sitecheck.txt
+cellranger upload wanessaabordo@yahoo.com.br sitecheck.txt
+
+
+Opciaonal -> Download  bcl2fastq2 Conversion Software v2.20
+
+unzip bcl2fastq2-v2.20.0.422-Linux-x86_64.zip
+rpm2cpio ./bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm | cpio -idmv
+
+./usr/local/bin/bcl2fastq ##executar
+
+
+Download arquivo FASTA e GTF
+wget https://ftp.ensembl.org/pub/release-110/gtf/sus_scrofa/Sus_scrofa.Sscrofa11.1.110.gtf.gz
+
+wget https://ftp.ensembl.org/pub/release-110/fasta/sus_scrofa/dna/Sus_scrofa.Sscrofa11.1.dna.toplevel.fa.gz
+
+Renomear mv Sus_scrofa.Sscrofa11.1.110.gtf.gz Sus_scrofa.SscrofaAnotation.gtf.gz
+mv Sus_scrofa.Sscrofa11.1.dna.toplevel.fa.gz Sus_scrofa.SscrofaGenome.dna.toplevel.fa.gz
+
+Criar diretório Database
+mkdir /home/wanessa/cellranger/cellranger-6.1.2/database
+
+Mover arquivos para o Database
+mv ./Sus_scrofa.Sscrofa11.1.110.gtf.gz /home/wanessa/apps/cellranger-7.1.0/database
+mv ./GCF_000003025.6_Sscrofa11.1_genomic.fna.gz /home/wanessa/apps/cellranger-7.1.0/database
+
+Descompactar arquivos
+cd /home/wanessa/apps/cellranger-7.1.0/database ##entrar na pasta
+
+gzip -d Sus_scrofa.SscrofaAnotation.gtf.gz
+gzip -d Sus_scrofa.SscrofaGenome.dna.toplevel.fa.gz
+
+
+Criar Index
+sudo samtools faidx /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa
