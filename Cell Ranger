@@ -25,18 +25,16 @@ tar -zxvf cellranger-7.1.0.tar.gz
 
 ls -1
 ## cellranger-7.1.0
-cellranger-7.1.0.tar.gz
+## cellranger-7.1.0.tar.gz
 
 cd cellranger-7.1.0
 Pwd
 ## /home/wanessa/apps/cellranger-7.1.0
 
-#e Create a path 
+# Create a path 
 export PATH=/home/wanessa/cellranger/cellranger-6.1.2:$PATH
-
 which cellranger
 (/home/wanessa/apps/cellranger-7.1.0/cellranger)
-
 cellranger
 
 
@@ -75,3 +73,45 @@ cellranger mkgtf /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.S
 
 # Create a reference
 cellranger mkref --nthreads=4 --genome=Sscrofa_genome --fasta=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa --genes=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.prepared.gtf
+# Command line
+cellranger --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_genome
+
+
+
+##### Cell Ranger Count
+# Create folders
+mkdir~/yard/run_cellranger_count
+cd ~/yard/run_cellranger_count
+mkdir ~/yard/run_cellranger_count/pig fastqs
+
+# Download Fastaq
+Lane 1
+wget https://ftp.cngb.org/pub/CNSA/data3/CNP0000686/CNS0127224/CNX0111987/CNR0134260/CL100128991_L01_read_1.fq.gz
+wget https://ftp.cngb.org/pub/CNSA/data3/CNP0000686/CNS0127224/CNX0111987/CNR0134260/CL100128991_L01_read_2.fq.gz
+Lane 2
+wget https://ftp.cngb.org/pub/CNSA/data3/CNP0000686/CNS0127225/CNX0111988/CNR0134261/CL100128991_L02_read_1.fq.gz
+wget https://ftp.cngb.org/pub/CNSA/data3/CNP0000686/CNS0127225/CNX0111988/CNR0134261/CL100128991_L02_read_2.fq.gz
+
+# Rename 
+mv CL100128991_L01_read_1.fq.gz Pig_Hypothalamus_S1_L001_R1_001.fastq.gz
+mv CL100128991_L01_read_2.fq.gz Pig_Hypothalamus_S1_L001_R2_001.fastq.gz
+mv CL100128991_L02_read_1.fq.gz Pig_Hypothalamus_S1_L002_R1_001.fastq.gz
+mv CL100128991_L02_read_2.fq.gz Pig_Hypothalamus_S1_L002_R2_001.fastq.gz
+
+
+# Set up the command for cellranger count
+cellranger count --help
+
+# Run cellranger count
+cellranger count --id=run_count_pig \
+   --fastqs=/home/wanessa/yard/run_cellranger_count/Pig_Hypothalamus_fastqs \
+   --sample=Pig_Hypothalamus \
+   --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_Sscrofa_transcriptome
+
+
+
+
+
+
+
+
