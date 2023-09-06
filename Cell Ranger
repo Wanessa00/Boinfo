@@ -31,49 +31,47 @@ cd cellranger-7.1.0
 Pwd
 ## /home/wanessa/apps/cellranger-7.1.0
 
-Criando um path para cellranger
+#e Create a path 
 export PATH=/home/wanessa/cellranger/cellranger-6.1.2:$PATH
 
 which cellranger
 (/home/wanessa/apps/cellranger-7.1.0/cellranger)
 
-Cellranger ou /home/wanessa/cellranger/cellranger-6.1.2/cellranger
+cellranger
 
 
-Configurando Cell Ranger
+# Configure Cell Ranger
 cellranger sitecheck >  sitecheck.txt
 cellranger upload wanessaabordo@yahoo.com.br sitecheck.txt
 
 
-Opciaonal -> Download  bcl2fastq2 Conversion Software v2.20
-
-unzip bcl2fastq2-v2.20.0.422-Linux-x86_64.zip
-rpm2cpio ./bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm | cpio -idmv
-
-./usr/local/bin/bcl2fastq ##executar
+# BCLs - Download  bcl2fastq2 Conversion Software v2.20  #
 
 
-Download arquivo FASTA e GTF
+# Download FASTA and GTF
 wget https://ftp.ensembl.org/pub/release-110/gtf/sus_scrofa/Sus_scrofa.Sscrofa11.1.110.gtf.gz
-
 wget https://ftp.ensembl.org/pub/release-110/fasta/sus_scrofa/dna/Sus_scrofa.Sscrofa11.1.dna.toplevel.fa.gz
-
-Renomear mv Sus_scrofa.Sscrofa11.1.110.gtf.gz Sus_scrofa.SscrofaAnotation.gtf.gz
+# Rename
+mv Sus_scrofa.Sscrofa11.1.110.gtf.gz Sus_scrofa.SscrofaAnotation.gtf.gz
 mv Sus_scrofa.Sscrofa11.1.dna.toplevel.fa.gz Sus_scrofa.SscrofaGenome.dna.toplevel.fa.gz
 
-Criar diretório Database
+# Create Folder Database
 mkdir /home/wanessa/cellranger/cellranger-6.1.2/database
-
-Mover arquivos para o Database
-mv ./Sus_scrofa.Sscrofa11.1.110.gtf.gz /home/wanessa/apps/cellranger-7.1.0/database
-mv ./GCF_000003025.6_Sscrofa11.1_genomic.fna.gz /home/wanessa/apps/cellranger-7.1.0/database
-
-Descompactar arquivos
-cd /home/wanessa/apps/cellranger-7.1.0/database ##entrar na pasta
-
+cd /home/wanessa/apps/cellranger-7.1.0/database
+# Unzip
 gzip -d Sus_scrofa.SscrofaAnotation.gtf.gz
 gzip -d Sus_scrofa.SscrofaGenome.dna.toplevel.fa.gz
 
-
-Criar Index
+# Create a Index
 sudo samtools faidx /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa
+
+# Filter GTF files
+cellranger mkgtf\
+  Sus_scrofa.SscrofaAnotation.gtf  \
+  Sus_scrofa.SscrofaAnotation.filtered.gtf \
+
+# Prepared files
+cellranger mkgtf /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.filtered.gtf  /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.prepared.gtf --attribute=key:allowable_value
+
+# Create a reference
+cellranger mkref --nthreads=4 --genome=Sscrofa_genome --fasta=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa --genes=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.prepared.gtf
