@@ -106,7 +106,7 @@ cellranger count --help
 cellranger count --id=run_count_pig \
    --fastqs=/home/wanessa/yard/run_cellranger_count/Pig_Hypothalamus_fastqs \
    --sample=Pig_Hypothalamus \
-   --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_Sscrofa_transcriptome
+   --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_genome
 
 
 
