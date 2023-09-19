@@ -103,10 +103,14 @@ mv CL100128991_L02_read_2.fq.gz Pig_Hypothalamus_S1_L002_R2_001.fastq.gz
 cellranger count --help
 
 # Run cellranger count
-cellranger count --id=run_count_pig \
-   --fastqs=/home/wanessa/yard/run_cellranger_count/Pig_Hypothalamus_fastqs \
-   --sample=Pig_Hypothalamus \
-   --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_genome
+cellranger count --id=count_pig \
+	    --fastqs=/home/wanessa/yard/run_cellranger_count/Pig_Hypothalamus_fastqs \
+	    --sample=Pig_Hypothalamus \
+	    --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_genome \
+	    --localmem=16 \
+	    --localcores=4 \
+	    --chemistry=SC3Pv2
+
 
 
 
