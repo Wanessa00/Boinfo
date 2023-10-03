@@ -3,7 +3,6 @@ sudo apt-get update
 sudo apt-get install g++
 sudo apt install cufflinks
 sudo apt-get install make
-(make release)
 sudo apt install python3-docopt
 sudo apt install python3-lz4
 sudo apt install python3-numpy
@@ -54,14 +53,14 @@ mv Sus_scrofa.Sscrofa11.1.110.gtf.gz Sus_scrofa.SscrofaAnotation.gtf.gz
 mv Sus_scrofa.Sscrofa11.1.dna.toplevel.fa.gz Sus_scrofa.SscrofaGenome.dna.toplevel.fa.gz
 
 # Create Folder Database
-mkdir /home/wanessa/cellranger/cellranger-6.1.2/database
+mkdir /home/wanessa/cellranger/cellranger-7.1.0/database
 cd /home/wanessa/apps/cellranger-7.1.0/database
 # Unzip
 gzip -d Sus_scrofa.SscrofaAnotation.gtf.gz
 gzip -d Sus_scrofa.SscrofaGenome.dna.toplevel.fa.gz
 
 # Create a Index
-sudo samtools faidx /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa
+sudo samtools faidx /home/wanessa/cellranger/cellranger-7.1.0/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa
 
 # Filter GTF files
 cellranger mkgtf\
@@ -72,7 +71,7 @@ cellranger mkgtf\
 cellranger mkgtf /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.filtered.gtf  /home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.prepared.gtf --attribute=key:allowable_value
 
 # Create a reference
-cellranger mkref --nthreads=4 --genome=Sscrofa_genome --fasta=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa --genes=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.prepared.gtf
+cellranger mkref --nthreads=4 --genome=Sscrofa_genome --fasta=/home/wanessa/cellranger/cellranger-7.1.0/database/Sus_scrofa.SscrofaGenome.dna.toplevel.fa --genes=/home/wanessa/cellranger/cellranger-6.1.2/database/Sus_scrofa.SscrofaAnotation.prepared.gtf
 # Command line
 cellranger --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_genome
 
@@ -98,7 +97,6 @@ mv CL100128991_L01_read_2.fq.gz Pig_Hypothalamus_S1_L001_R2_001.fastq.gz
 mv CL100128991_L02_read_1.fq.gz Pig_Hypothalamus_S1_L002_R1_001.fastq.gz
 mv CL100128991_L02_read_2.fq.gz Pig_Hypothalamus_S1_L002_R2_001.fastq.gz
 
-
 # Set up the command for cellranger count
 cellranger count --help
 
@@ -106,7 +104,7 @@ cellranger count --help
 cellranger count --id=count_pig \
 	    --fastqs=/home/wanessa/yard/run_cellranger_count/Pig_Hypothalamus_fastqs \
 	    --sample=Pig_Hypothalamus \
-	    --transcriptome=/home/wanessa/cellranger/cellranger-6.1.2/database/Sscrofa_genome \
+	    --transcriptome=/home/wanessa/cellranger/cellranger-7.1.0/database/Sscrofa_genome \
 	    --localmem=16 \
 	    --localcores=4 \
 	    --chemistry=SC3Pv2
