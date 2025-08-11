@@ -1,0 +1,119 @@
+############################################################
+# Merge and Preprocess Single-Cell Datasets from Two Studies
+############################################################
+
+# Load required libraries
+library(Seurat)
+library(dplyr)
+library(stringr)
+library(future)
+
+
+# 1) Load preprocessed Seurat objects
+obj_study1 <- readRDS("final_preprocessed_objects_merged_study1.Rds")
+obj_study2 <- readRDS("final_preprocessed_objects_merged_prefilter_study2.Rds")
+
+# Rename column 'Gender' to 'Sex' in study1
+colnames(obj_study1@meta.data)[colnames(obj_study1@meta.data) == "Gender"] <- "Sex"
+
+# Replace "Sample8_1" with "Sample8-1" in study2
+obj_study2$Sample <- gsub("Sample8-1", "Sample8-1", obj_study2$Sample)
+unique(obj_study2$Sample)
+
+# Replace values in 'orig.ident' column with 'Sample' values
+obj_study2$orig.ident <- obj_study2$Sample
+
+# Add sample name before barcode for study2
+barcodes <- sub("_(\\d+)$", "", Cells(obj_study2))
+sample_names <- obj_study2$Sample
+new_cell_names <- paste0(sample_names, "_", barcodes)
+head(new_cell_names)
+obj_study2 <- RenameCells(obj_study2, new.names = new_cell_names)
+
+
+# 2) Extract and compare sample names from both studies
+samples_study1 <- sub("_.*", "", Cells(obj_study1))
+unique_samples_study1 <- unique(samples_study1)
+
+samples_study2 <- sub("_.*", "", Cells(obj_study2))
+unique_samples_study2 <- unique(samples_study2)
+
+length(unique_samples_study1)
+length(unique_samples_study2)
+
+
+# 3) Add column 'Age' if missing in study2
+if (!"Age" %in% colnames(obj_study2@meta.data)) {
+  obj_study2$Age <- 0
+}
+meta_cols <- colnames(obj_study2@meta.data)
+meta_cols <- append(meta_cols[meta_cols != "Age"], "Age", after = 9)
+obj_study2@meta.data <- obj_study2@meta.data[, meta_cols]
+colnames(obj_study2@meta.data)
+
+
+# 4) Merge the two Seurat objects
+objects_merged <- merge(
+  x = obj_study1,
+  y = obj_study2,
+  project = "combined_study1_study2",
+  merge.data = FALSE
+)
+saveRDS(objects_merged, "final_preprocessed_objects_merged_study1_study2.Rds")
+
+
+# 5) Add metadata columns for Study, Disease, and Stim
+objects_merged$Study <- ifelse(grepl("^MB", objects_merged$Sample), "StudyA", "StudyB")
+table(objects_merged$Study)
+table(objects_merged$Sample)
+
+cell.names <- colnames(objects_merged)
+disease.vec <- ifelse(
+  objects_merged$Study == "StudyB", "ConditionB",
+  ifelse(objects_merged$Study == "StudyA", "ConditionA", NA)
+)
+names(disease.vec) <- cell.names
+
+stim.vec <- paste(objects_merged$Condition, disease.vec, sep = "_")
+names(stim.vec) <- cell.names
+
+objects_merged <- AddMetaData(objects_merged, metadata = disease.vec, col.name = "Disease")
+objects_merged <- AddMetaData(objects_merged, metadata = stim.vec,    col.name = "Stim")
+
+table(objects_merged$Disease)
+table(objects_merged$Stim)
+head(objects_merged@meta.data[, c("Condition","Study","Disease","Stim")])
+
+
+# 6) Parallel processing and normalization
+plan("multicore", workers = 70)
+options(future.globals.maxSize = 600 * 1024^3)  # 90 GB
+
+message("Normalizing")
+objects_merged <- NormalizeData(objects_merged, normalization.method = "LogNormalize", scale.factor = 10000)
+
+
+# 7) Load variable features and combine them
+var_features1 <- readRDS("var_features_post_filter_study2.rds")
+var_features2 <- readRDS("var_features_post_filter_study1.rds")
+
+var_union <- union(var_features1, var_features2)
+genes_present <- intersect(var_union, rownames(objects_merged))
+VariableFeatures(objects_merged) <- genes_present
+
+# 8) Scale data
+message("Scaling")
+objects_merged <- ScaleData(objects_merged, vars.to.regress = c("nCount_RNA", "percent.mt"), model.use = "poisson", use.umi = TRUE)
+
+
+# 9) PCA and elbow plot
+message("Run PCA")
+objects_merged <- RunPCA(objects_merged, npcs = 100)
+
+pdf(file = "elbow_plot_100PCs.pdf", width = 8, height = 6)
+ElbowPlot(object = objects_merged, ndims = 100)
+dev.off()
+
+
+# 10) Save final object
+saveRDS(objects_merged, file = "scaled_merged_object_study1_study2.Rds")
