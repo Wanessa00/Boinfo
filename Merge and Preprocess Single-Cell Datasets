@@ -1,5 +1,14 @@
 ############################################################
-# Merge and Preprocess Single-Cell Datasets from Two Studies
+# Title: Merge and Preprocess Single-Cell Datasets from Two Studies
+# Author: Wanessa Santos
+# Date: 2025-01-02
+# Description:
+#   This script merges two preprocessed Seurat objects,
+#   standardizes metadata, performs normalization, scaling,
+#   PCA, and saves the processed object for downstream analysis.
+# Requirements:
+#   - Seurat >= 4.3.0
+#   - dplyr, stringr, future
 ############################################################
 
 # Load required libraries
